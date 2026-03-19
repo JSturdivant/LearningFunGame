@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Princess Word Adventure</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Georgia', serif; background: linear-gradient(135deg, #1a0533 0%, #2d0a4e 50%, #1a0533 100%); min-height: 100vh; overflow: hidden; }
+  #root { width: 100%; height: 100vh; display: flex; flex-direction: column; }
+
+  /* Stars background */
+  .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  .star-dot { position: absolute; border-radius: 50%; background: white; animation: twinkle 2s infinite alternate; }
+  @keyframes twinkle { 0% { opacity: 0.2; transform: scale(1); } 100% { opacity: 1; transform: scale(1.3); } }
+
+  .game-container { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
+
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; margin-bottom: 10px; backdrop-filter: blur(10px); border: 1px solid rgba(255,215,0,0.3); }
+  .stars-display { display: flex; align-items: center; gap: 6px; color: #FFD700; font-size: 18px; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.8); }
+  .progress-text { color: #E8C4F0; font-size: 13px; text-align: center; }
+  .title-text { color: #FFD700; font-size: 16px; font-weight: bold; text-shadow: 0 0 10px rgba(255,215,0,0.5); }
+
+  /* Main card area */
+  .card-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+
+  /* Sentence progress dots */
+  .word-dots { display: flex; gap: 8px; margin-bottom: 8px; }
+  .word-dot { width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); transition: all 0.3s; }
+  .word-dot.done { background: #FFD700; border-color: #FFD700; box-shadow: 0 0 8px rgba(255,215,0,0.8); }
+  .word-dot.current { background: #E8C4F0; border-color: #C084FC; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+
+  /* Flip card */
+  .flip-card-wrapper { perspective: 1000px; width: min(340px, 90vw); height: min(260px, 50vw); cursor: pointer; }
+  .flip-card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); transform-style: preserve-3d; }
+  .flip-card-wrapper.flipped .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .flip-card-front { background: linear-gradient(135deg, #3d0f6b, #6b21a8); border: 3px solid rgba(255,215,0,0.6); box-shadow: 0 8px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2); }
+  .flip-card-back { background: linear-gradient(135deg, #1e3a5f, #1e40af); border: 3px solid rgba(96,165,250,0.6); box-shadow: 0 8px 32px rgba(0,0,0,0.4); transform: rotateY(180deg); }
+
+  .tap-hint { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 8px; animation: bounce 2s infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+  /* Word display */
+  .word-display { display: flex; gap: 2px; justify-content: center; flex-wrap: wrap; padding: 0 10px; }
+  .letter { font-size: clamp(40px, 12vw, 72px); font-weight: bold; line-height: 1; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+  .letter.vowel { color: #FF85C2; }
+  .letter.consonant { color: #93C5FD; }
+  .letter.silent { color: #9CA3AF; }
+  .letter.digraph { color: #FCD34D; }
+  .letter.punct { color: #E8C4F0; }
+
+  /* Picture hint */
+  .picture-hint { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px; }
+  .hint-emoji { font-size: clamp(60px, 18vw, 100px); line-height: 1; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+  .hint-word { color: white; font-size: 20px; font-weight: bold; opacity: 0.9; }
+  .hint-sound { color: #93C5FD; font-size: 14px; font-style: italic; }
+
+  /* Full sentence display */
+  .full-sentence-card { background: linear-gradient(135deg, #7c3aed, #9333ea); border: 3px solid #FFD700; border-radius: 24px; padding: 24px 20px; text-align: center; width: min(360px, 95vw); box-shadow: 0 8px 32px rgba(124,58,237,0.5); }
+  .full-sentence-label { color: #FCD34D; font-size: 14px; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; }
+  .full-sentence-text { color: white; font-size: clamp(22px, 7vw, 36px); font-weight: bold; line-height: 1.4; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+
+  /* Guide character */
+  .guide { font-size: 40px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+
+  /* Buttons */
+  .buttons { display: flex; gap: 12px; padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom, 12px)); }
+  .btn { flex: 1; padding: 16px 12px; border: none; border-radius: 20px; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.1s, box-shadow 0.1s; -webkit-tap-highlight-color: transparent; min-height: 60px; }
+  .btn:active { transform: scale(0.95); }
+  .btn-no { background: linear-gradient(135deg, #dc2626, #ef4444); color: white; box-shadow: 0 4px 16px rgba(220,38,38,0.5); border: 2px solid rgba(255,255,255,0.2); }
+  .btn-yes { background: linear-gradient(135deg, #16a34a, #22c55e); color: white; box-shadow: 0 4px 16px rgba(22,163,74,0.5); border: 2px solid rgba(255,255,255,0.2); }
+  .btn-icon { font-size: 22px; }
+
+  /* Celebration overlay */
+  .celebration { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,0.7); }
+  .celebration-card { background: linear-gradient(135deg, #4c1d95, #7c3aed, #9333ea); border: 4px solid #FFD700; border-radius: 32px; padding: 32px 28px; text-align: center; width: min(340px, 90vw); box-shadow: 0 16px 64px rgba(124,58,237,0.7); animation: celebIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes celebIn { from { transform: scale(0.5) rotate(-5deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+  .celebration-emoji { font-size: 80px; animation: dance 0.5s infinite alternate; }
+  @keyframes dance { from { transform: rotate(-15deg) scale(1); } to { transform: rotate(15deg) scale(1.1); } }
+  .celebration-title { color: #FFD700; font-size: 28px; font-weight: bold; margin: 12px 0 8px; text-shadow: 0 0 20px rgba(255,215,0,0.8); }
+  .celebration-subtitle { color: #E8C4F0; font-size: 16px; }
+  .confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; overflow: hidden; }
+  .confetti-piece { position: absolute; width: 10px; height: 10px; animation: confettiFall linear forwards; }
+  @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+
+  /* End screen */
+  .end-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 200; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a0533, #2d0a4e); }
+  .end-card { background: linear-gradient(135deg, #4c1d95, #7c3aed); border: 4px solid #FFD700; border-radius: 32px; padding: 40px 28px; text-align: center; width: min(360px, 92vw); box-shadow: 0 16px 64px rgba(0,0,0,0.5); }
+  .end-title { color: #FFD700; font-size: 32px; font-weight: bold; margin-bottom: 8px; }
+  .end-subtitle { color: #E8C4F0; font-size: 18px; margin-bottom: 20px; }
+  .end-stars { font-size: 48px; margin: 20px 0; }
+  .btn-play-again { background: linear-gradient(135deg, #FFD700, #FFA500); color: #1a0533; font-size: 20px; font-weight: bold; border: none; border-radius: 20px; padding: 16px 32px; cursor: pointer; margin-top: 16px; box-shadow: 0 4px 16px rgba(255,215,0,0.5); transition: transform 0.1s; }
+  .btn-play-again:active { transform: scale(0.95); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ── SENTENCE LIBRARY ──────────────────────────────────────────────────────────
+const SENTENCES = [
+  { words: ["The", "cat", "sat."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐱", sound: "k-at" },
+    { emoji: "🪑", sound: "s-at" }
+  ]},
+  { words: ["I", "see", "a", "dog."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "👀", sound: "s-ee" },
+    { emoji: "🅰️", sound: "uh" },
+    { emoji: "🐶", sound: "d-og" }
+  ]},
+  { words: ["The", "dog", "ran", "fast."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐶", sound: "d-og" },
+    { emoji: "🏃", sound: "r-an" },
+    { emoji: "⚡", sound: "f-ast" }
+  ]},
+  { words: ["The", "cat", "is", "big."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐱", sound: "k-at" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "🐘", sound: "b-ig" }
+  ]},
+  { words: ["I", "like", "to", "run."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "❤️", sound: "l-ike" },
+    { emoji: "➡️", sound: "too" },
+    { emoji: "🏃", sound: "r-un" }
+  ]},
+  { words: ["See", "the", "red", "ball."], hints: [
+    { emoji: "👀", sound: "s-ee" },
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🔴", sound: "r-ed" },
+    { emoji: "⚽", sound: "b-all" }
+  ]},
+  { words: ["The", "sun", "is", "hot."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "☀️", sound: "s-un" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "🔥", sound: "h-ot" }
+  ]},
+  { words: ["The", "pig", "is", "big."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐷", sound: "p-ig" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "🐘", sound: "b-ig" }
+  ]},
+  { words: ["The", "cat", "can", "jump."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐱", sound: "k-at" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🦘", sound: "j-ump" }
+  ]},
+  { words: ["The", "dog", "can", "dig."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐶", sound: "d-og" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "⛏️", sound: "d-ig" }
+  ]},
+  { words: ["I", "can", "hop."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🐸", sound: "h-op" }
+  ]},
+  { words: ["Do", "you", "see", "the", "cat?"], hints: [
+    { emoji: "❓", sound: "d-oo" },
+    { emoji: "🫵", sound: "y-oo" },
+    { emoji: "👀", sound: "s-ee" },
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐱", sound: "k-at" }
+  ]},
+  { words: ["Can", "you", "run?"], hints: [
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🫵", sound: "y-oo" },
+    { emoji: "🏃", sound: "r-un" }
+  ]},
+  { words: ["Is", "the", "dog", "big?"], hints: [
+    { emoji: "❓", sound: "iz" },
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐶", sound: "d-og" },
+    { emoji: "🐘", sound: "b-ig" }
+  ]},
+  { words: ["The", "bird", "can", "fly."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐦", sound: "b-ird" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "✈️", sound: "fl-y" }
+  ]},
+  { words: ["I", "see", "a", "bug."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "👀", sound: "s-ee" },
+    { emoji: "🅰️", sound: "uh" },
+    { emoji: "🐛", sound: "b-ug" }
+  ]},
+  { words: ["The", "frog", "can", "hop."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐸", sound: "fr-og" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🦘", sound: "h-op" }
+  ]},
+  { words: ["The", "fish", "can", "swim."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐟", sound: "f-ish" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🏊", sound: "sw-im" }
+  ]},
+  { words: ["The", "hat", "is", "blue."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🎩", sound: "h-at" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "💙", sound: "bl-oo" }
+  ]},
+  { words: ["I", "like", "to", "play."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "❤️", sound: "l-ike" },
+    { emoji: "➡️", sound: "too" },
+    { emoji: "🎮", sound: "pl-ay" }
+  ]},
+  { words: ["The", "cow", "is", "tan."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐄", sound: "k-ow" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "🌰", sound: "t-an" }
+  ]},
+  { words: ["A", "bee", "can", "sting."], hints: [
+    { emoji: "🅰️", sound: "uh" },
+    { emoji: "🐝", sound: "b-ee" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🪡", sound: "st-ing" }
+  ]},
+  { words: ["The", "ant", "is", "red."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐜", sound: "a-nt" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "🔴", sound: "r-ed" }
+  ]},
+  { words: ["I", "see", "the", "moon."], hints: [
+    { emoji: "👧", sound: "eye" },
+    { emoji: "👀", sound: "s-ee" },
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🌙", sound: "m-oon" }
+  ]},
+  { words: ["The", "box", "is", "full."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "📦", sound: "b-ox" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "💯", sound: "f-ull" }
+  ]},
+  { words: ["The", "hen", "sat", "on", "it."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "🐔", sound: "h-en" },
+    { emoji: "🪑", sound: "s-at" },
+    { emoji: "⬆️", sound: "on" },
+    { emoji: "👇", sound: "it" }
+  ]},
+  { words: ["We", "can", "go", "now."], hints: [
+    { emoji: "👫", sound: "w-ee" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🚶", sound: "g-oh" },
+    { emoji: "⏰", sound: "n-ow" }
+  ]},
+  { words: ["She", "has", "a", "doll."], hints: [
+    { emoji: "👧", sound: "sh-ee" },
+    { emoji: "🤲", sound: "h-az" },
+    { emoji: "🅰️", sound: "uh" },
+    { emoji: "🪆", sound: "d-oll" }
+  ]},
+  { words: ["The", "star", "is", "gold."], hints: [
+    { emoji: "👑", sound: "thuh" },
+    { emoji: "⭐", sound: "st-ar" },
+    { emoji: "✅", sound: "iz" },
+    { emoji: "✨", sound: "g-old" }
+  ]},
+  { words: ["He", "can", "help", "me."], hints: [
+    { emoji: "👦", sound: "h-ee" },
+    { emoji: "💪", sound: "k-an" },
+    { emoji: "🤝", sound: "h-elp" },
+    { emoji: "👧", sound: "m-ee" }
+  ]},
+];
+
+// ── PHONETIC COLORING ─────────────────────────────────────────────────────────
+const VOWELS = new Set(['a','e','i','o','u','A','E','I','O','U']);
+const DIGRAPHS = ['ch','sh','th','wh','ph','ck','ng','qu','bl','br','cl','cr','dr','fl','fr','gl','gr','pl','pr','sc','sk','sl','sm','sn','sp','st','sw','tr','tw'];
+const SILENT_RULES = {
+  'e': (word, i) => i === word.length - 1 && i > 1,
+  'k': (word, i) => i === 0 && word[1] && word[1].toLowerCase() === 'n',
+  'w': (word, i) => i === 0 && word[1] && word[1].toLowerCase() === 'r',
+  'b': (word, i) => i === word.length - 1 && word[i-1] && word[i-1].toLowerCase() === 'm',
+  'g': (word, i) => word[i-1] && word[i-1].toLowerCase() === 'n',
+};
+
+function classifyLetters(word) {
+  const clean = word.replace(/[^a-zA-Z]/g, '');
+  const result = [];
+  let i = 0;
+  const lc = clean.toLowerCase();
+  while (i < clean.length) {
+    const ch = clean[i];
+    const punct = /[^a-zA-Z]/.test(ch);
+    if (punct) { result.push({ ch, type: 'punct' }); i++; continue; }
+    // check digraph
+    if (i + 1 < clean.length) {
+      const di = lc[i] + lc[i+1];
+      if (DIGRAPHS.includes(di)) {
+        result.push({ ch: clean[i] + clean[i+1], type: 'digraph' });
+        i += 2; continue;
+      }
+    }
+    // check silent
+    const rule = SILENT_RULES[lc[i]];
+    if (rule && rule(lc, i)) { result.push({ ch, type: 'silent' }); i++; continue; }
+    if (VOWELS.has(ch)) { result.push({ ch, type: 'vowel' }); }
+    else { result.push({ ch, type: 'consonant' }); }
+    i++;
+  }
+  // append punctuation that was part of original word
+  const trailPunct = word.slice(clean.length);
+  for (const p of trailPunct) result.push({ ch: p, type: 'punct' });
+  return result;
+}
+
+function ColoredWord({ word, big = true }) {
+  const letters = classifyLetters(word);
+  return React.createElement('div', { className: 'word-display' },
+    letters.map((l, i) =>
+      React.createElement('span', { key: i, className: `letter ${l.type}`, style: big ? {} : { fontSize: 'clamp(18px,5vw,28px)' } }, l.ch)
+    )
+  );
+}
+
+// ── CELEBRATIONS ──────────────────────────────────────────────────────────────
+const CELEBRATIONS = [
+  { emoji: '🦄', title: 'Amazing!', subtitle: 'You read it like a princess! 👑' },
+  { emoji: '🌟', title: 'Superstar!', subtitle: 'Brilliant reading! ✨' },
+  { emoji: '👸', title: 'Royal Reader!', subtitle: 'The princess is proud of you! 🌸' },
+  { emoji: '🎠', title: 'Wow!', subtitle: 'You are on a roll! 🎉' },
+  { emoji: '🏆', title: 'Champion!', subtitle: 'You read every word! 🌈' },
+  { emoji: '🌈', title: 'Magical!', subtitle: 'You make reading look easy! 💫' },
+  { emoji: '🦋', title: 'Beautiful!', subtitle: 'Reading is your superpower! 🔮' },
+];
+
+const CONFETTI_COLORS = ['#FF85C2','#FFD700','#C084FC','#93C5FD','#6EE7B7','#FCA5A5','#A5F3FC'];
+
+function Confetti() {
+  const pieces = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    delay: Math.random() * 0.8,
+    duration: 1.5 + Math.random(),
+    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    size: 6 + Math.random() * 10,
+    shape: Math.random() > 0.5 ? '50%' : '0%',
+  }));
+  return React.createElement('div', { className: 'confetti-container' },
+    pieces.map(p => React.createElement('div', {
+      key: p.id,
+      className: 'confetti-piece',
+      style: {
+        left: p.left + '%',
+        width: p.size, height: p.size,
+        borderRadius: p.shape,
+        background: p.color,
+        animationDuration: p.duration + 's',
+        animationDelay: p.delay + 's',
+      }
+    }))
+  );
+}
+
+// ── STAR BACKGROUND ───────────────────────────────────────────────────────────
+function StarBackground() {
+  const stars = Array.from({ length: 40 }, (_, i) => ({
+    id: i,
+    top: Math.random() * 100,
+    left: Math.random() * 100,
+    size: 1 + Math.random() * 3,
+    delay: Math.random() * 3,
+  }));
+  return React.createElement('div', { className: 'stars' },
+    stars.map(s => React.createElement('div', {
+      key: s.id,
+      className: 'star-dot',
+      style: { top: s.top + '%', left: s.left + '%', width: s.size, height: s.size, animationDelay: s.delay + 's' }
+    }))
+  );
+}
+
+// ── GUIDES ────────────────────────────────────────────────────────────────────
+const GUIDES = ['🦄', '👸', '🌟', '🦋', '🌸'];
+
+// ── MAIN GAME ─────────────────────────────────────────────────────────────────
+function Game() {
+  const [sentenceIdx, setSentenceIdx] = useState(0);
+  const [wordIdx, setWordIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [phase, setPhase] = useState('word'); // 'word' | 'fullSentence' | 'celebration' | 'end'
+  const [stars, setStars] = useState(0);
+  const [celebration, setCelebration] = useState(null);
+  const [guideIdx] = useState(() => Math.floor(Math.random() * GUIDES.length));
+  const celebTimerRef = useRef(null);
+
+  const sentence = SENTENCES[sentenceIdx];
+
+  const handleFlip = useCallback(() => {
+    if (phase === 'word') setFlipped(f => !f);
+  }, [phase]);
+
+  const handleYes = useCallback(() => {
+    if (phase === 'word') {
+      const nextWord = wordIdx + 1;
+      if (nextWord >= sentence.words.length) {
+        setPhase('fullSentence');
+        setFlipped(false);
+      } else {
+        setWordIdx(nextWord);
+        setFlipped(false);
+      }
+    } else if (phase === 'fullSentence') {
+      const celeb = CELEBRATIONS[Math.floor(Math.random() * CELEBRATIONS.length)];
+      setCelebration(celeb);
+      setPhase('celebration');
+      setStars(s => s + 1);
+      celebTimerRef.current = setTimeout(() => {
+        setCelebration(null);
+        const next = sentenceIdx + 1;
+        if (next >= SENTENCES.length) {
+          setPhase('end');
+        } else {
+          setSentenceIdx(next);
+          setWordIdx(0);
+          setFlipped(false);
+          setPhase('word');
+        }
+      }, 2800);
+    }
+  }, [phase, wordIdx, sentence, sentenceIdx]);
+
+  const handleNo = useCallback(() => {
+    if (phase === 'word') {
+      setFlipped(true); // show picture
+    } else if (phase === 'fullSentence') {
+      // restart sentence
+      setWordIdx(0);
+      setFlipped(false);
+      setPhase('word');
+    }
+  }, [phase]);
+
+  const handlePlayAgain = useCallback(() => {
+    setSentenceIdx(0);
+    setWordIdx(0);
+    setFlipped(false);
+    setPhase('word');
+    setStars(0);
+    setCelebration(null);
+  }, []);
+
+  useEffect(() => () => clearTimeout(celebTimerRef.current), []);
+
+  if (phase === 'end') {
+    return React.createElement('div', null,
+      React.createElement(StarBackground),
+      React.createElement('div', { className: 'end-screen' },
+        React.createElement('div', { className: 'end-card' },
+          React.createElement('div', { style: { fontSize: 72 } }, '🦄'),
+          React.createElement('div', { className: 'end-title' }, 'You Did It!'),
+          React.createElement('div', { className: 'end-subtitle' }, 'You read all the sentences!'),
+          React.createElement('div', { className: 'end-stars' },
+            Array.from({ length: Math.min(stars, 10) }, (_, i) =>
+              React.createElement('span', { key: i }, '⭐')
+            )
+          ),
+          React.createElement('div', { style: { color: '#E8C4F0', fontSize: 20, marginBottom: 8 } },
+            stars + ' gold stars earned! 🌟'
+          ),
+          React.createElement('button', { className: 'btn-play-again', onClick: handlePlayAgain }, '✨ Play Again! ✨')
+        )
+      )
+    );
+  }
+
+  return React.createElement('div', null,
+    React.createElement(StarBackground),
+    celebration && React.createElement(Confetti),
+    celebration && React.createElement('div', { className: 'celebration' },
+      React.createElement('div', { className: 'celebration-card' },
+        React.createElement('div', { className: 'celebration-emoji' }, celebration.emoji),
+        React.createElement('div', { className: 'celebration-title' }, celebration.title),
+        React.createElement('div', { className: 'celebration-subtitle' }, celebration.subtitle),
+        React.createElement('div', { style: { marginTop: 16, fontSize: 28 } },
+          Array.from({ length: stars }, (_, i) => React.createElement('span', { key: i }, '⭐'))
+        )
+      )
+    ),
+    React.createElement('div', { className: 'game-container' },
+      // Header
+      React.createElement('div', { className: 'header' },
+        React.createElement('div', { className: 'stars-display' },
+          React.createElement('span', null, '⭐'),
+          React.createElement('span', null, stars)
+        ),
+        React.createElement('div', { className: 'progress-text' },
+          `Sentence ${sentenceIdx + 1} of ${SENTENCES.length}`
+        ),
+        React.createElement('div', { className: 'title-text' }, '👑 Reader')
+      ),
+
+      // Card area
+      React.createElement('div', { className: 'card-area' },
+        // Guide character
+        React.createElement('div', { className: 'guide' }, GUIDES[guideIdx]),
+
+        phase === 'word' && React.createElement(React.Fragment, null,
+          // Word progress dots
+          React.createElement('div', { className: 'word-dots' },
+            sentence.words.map((_, i) =>
+              React.createElement('div', {
+                key: i,
+                className: `word-dot ${i < wordIdx ? 'done' : i === wordIdx ? 'current' : ''}`
+              })
+            )
+          ),
+
+          // Flip card
+          React.createElement('div', {
+            className: `flip-card-wrapper ${flipped ? 'flipped' : ''}`,
+            onClick: handleFlip
+          },
+            React.createElement('div', { className: 'flip-card-inner' },
+              // Front: word
+              React.createElement('div', { className: 'flip-card-front' },
+                React.createElement(ColoredWord, { word: sentence.words[wordIdx] }),
+                React.createElement('div', { className: 'tap-hint' }, 'tap for hint 👆')
+              ),
+              // Back: picture
+              React.createElement('div', { className: 'flip-card-back' },
+                React.createElement('div', { className: 'picture-hint' },
+                  React.createElement('div', { className: 'hint-emoji' }, sentence.hints[wordIdx].emoji),
+                  React.createElement('div', { className: 'hint-word' }, sentence.words[wordIdx]),
+                  React.createElement('div', { className: 'hint-sound' }, '🔊 ' + sentence.hints[wordIdx].sound)
+                )
+              )
+            )
+          )
+        ),
+
+        phase === 'fullSentence' && React.createElement('div', { className: 'full-sentence-card' },
+          React.createElement('div', { className: 'full-sentence-label' }, '✨ Read the sentence! ✨'),
+          React.createElement('div', { className: 'full-sentence-text' },
+            sentence.words.join(' ')
+          )
+        )
+      ),
+
+      // Buttons
+      React.createElement('div', { className: 'buttons' },
+        React.createElement('button', { className: 'btn btn-no', onClick: handleNo },
+          React.createElement('span', { className: 'btn-icon' }, '🔄'),
+          React.createElement('span', null, phase === 'word' ? 'Help me' : 'Try again')
+        ),
+        React.createElement('button', { className: 'btn btn-yes', onClick: handleYes },
+          React.createElement('span', { className: 'btn-icon' }, '✨'),
+          React.createElement('span', null, phase === 'word' ? 'I read it!' : 'I said it!')
+        )
+      )
+    )
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Game));
+</script>
+</body>
+</html>
