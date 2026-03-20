@@ -8,7 +8,17 @@ import SentencePhase from './components/SentencePhase';
 import CelebrationOverlay from './components/CelebrationOverlay';
 import EndScreen from './components/EndScreen';
 
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function App() {
+  const [queue, setQueue] = useState(() => shuffle(SENTENCES));
   const [sentenceIdx, setSentenceIdx] = useState(0);
   const [wordIdx, setWordIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -18,7 +28,7 @@ export default function App() {
   const [guideIdx] = useState(() => Math.floor(Math.random() * GUIDES.length));
   const celebTimerRef = useRef(null);
 
-  const sentence = SENTENCES[sentenceIdx];
+  const sentence = queue[sentenceIdx];
 
   const handleFlip = useCallback(() => {
     if (phase === 'word') setFlipped((f) => !f);
@@ -42,7 +52,7 @@ export default function App() {
       celebTimerRef.current = setTimeout(() => {
         setCelebration(null);
         const next = sentenceIdx + 1;
-        if (next >= SENTENCES.length) {
+        if (next >= queue.length) {
           setPhase('end');
         } else {
           setSentenceIdx(next);
@@ -52,7 +62,7 @@ export default function App() {
         }
       }, 2800);
     }
-  }, [phase, wordIdx, sentence, sentenceIdx]);
+  }, [phase, wordIdx, sentence, sentenceIdx, queue]);
 
   const handleNo = useCallback(() => {
     if (phase === 'word') {
@@ -65,6 +75,7 @@ export default function App() {
   }, [phase]);
 
   const handlePlayAgain = useCallback(() => {
+    setQueue(shuffle(SENTENCES));
     setSentenceIdx(0);
     setWordIdx(0);
     setFlipped(false);
