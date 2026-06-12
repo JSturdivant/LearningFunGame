@@ -7,7 +7,7 @@
 
 body {
   font-family: 'Georgia', serif;
-  background: linear-gradient(135deg, #1a0533 0%, #2d0a4e 50%, #1a0533 100%);
+  background: linear-gradient(135deg, #2d0a4e 0%, #4a1259 40%, #6b1f6e 75%, #8e2a78 100%);
   min-height: 100vh;
   overflow: hidden;
 }
@@ -424,3 +424,424 @@ body {
 }
 
 .btn-play-again:active { transform: scale(0.95); }
+
+/* ── Home button ─────────────────────────────────────────────────────────── */
+.home-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 133, 194, 0.5);
+  border-radius: 14px;
+  font-size: 20px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.home-btn:active { transform: scale(0.9); }
+
+/* ── Welcome screen ──────────────────────────────────────────────────────── */
+.welcome {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 16px;
+  gap: 18px;
+}
+
+.welcome-header { text-align: center; }
+
+.welcome-crown {
+  font-size: 56px;
+  animation: bounce 2s infinite;
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.5));
+}
+
+.welcome-title {
+  color: #ffd700;
+  font-size: clamp(26px, 7vw, 44px);
+  text-shadow: 0 0 24px rgba(255, 133, 194, 0.8);
+  margin: 4px 0;
+}
+
+.welcome-sub {
+  color: #ffc4e8;
+  font-size: clamp(16px, 4vw, 22px);
+}
+
+.welcome-stars {
+  display: inline-block;
+  margin-top: 10px;
+  color: #ffd700;
+  font-size: 20px;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 215, 0, 0.4);
+  border-radius: 20px;
+  padding: 4px 16px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: min(440px, 94vw);
+}
+
+.menu-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+  border-radius: 28px;
+  padding: 22px 10px 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.12s;
+  min-height: 140px;
+}
+
+.menu-card:active { transform: scale(0.94); }
+
+.menu-card-pink    { background: linear-gradient(135deg, #ff85c2, #f43f8e); }
+.menu-card-purple  { background: linear-gradient(135deg, #c084fc, #8b2fc9); }
+.menu-card-magenta { background: linear-gradient(135deg, #f0abfc, #c026d3); }
+.menu-card-violet  { background: linear-gradient(135deg, #a78bfa, #6d28d9); }
+
+.menu-card-friend {
+  position: absolute;
+  top: -16px;
+  right: -6px;
+  font-size: 36px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  animation: bounce 2.5s infinite;
+}
+
+.menu-card-icon {
+  font-size: 52px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.menu-card-label {
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.welcome-footer {
+  font-size: 24px;
+  letter-spacing: 6px;
+  opacity: 0.8;
+}
+
+/* ── Big answer choice buttons (counting + math) ─────────────────────────── */
+.choice-row {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  width: min(440px, 94vw);
+}
+
+.choice-btn {
+  flex: 1;
+  min-height: 84px;
+  font-family: inherit;
+  font-size: clamp(32px, 9vw, 48px);
+  font-weight: bold;
+  color: white;
+  background: linear-gradient(135deg, #ff85c2, #c026d3);
+  border: 3px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(192, 38, 211, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform 0.1s;
+}
+
+.choice-btn:active { transform: scale(0.93); }
+
+.choice-btn.wrong {
+  background: linear-gradient(135deg, #6b7280, #4b5563);
+  opacity: 0.5;
+  animation: shake 0.4s;
+}
+
+.choice-btn.correct {
+  background: linear-gradient(135deg, #ffd700, #ffa500);
+  color: #4c1d95;
+  text-shadow: none;
+  animation: popIn 0.3s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+@keyframes popIn {
+  0%   { transform: scale(0.7); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ── Counting game ───────────────────────────────────────────────────────── */
+.count-hearts {
+  display: flex;
+  gap: 4px;
+  font-size: clamp(18px, 5vw, 26px);
+}
+
+.count-heart        { opacity: 0.45; transition: all 0.3s; }
+.count-heart.filled { opacity: 1; animation: popIn 0.3s; }
+
+.count-card {
+  background: linear-gradient(135deg, #7c3aed, #c026d3);
+  border: 3px solid #ffd700;
+  border-radius: 24px;
+  padding: 24px 18px;
+  text-align: center;
+  width: min(400px, 94vw);
+  box-shadow: 0 8px 32px rgba(192, 38, 211, 0.5);
+}
+
+.count-trail {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.count-chip {
+  color: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 6px 12px;
+  font-size: clamp(20px, 5vw, 30px);
+  font-weight: bold;
+}
+
+.count-chip.current {
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.18);
+  border-color: #ffd700;
+  font-size: clamp(32px, 8vw, 48px);
+  animation: popIn 0.3s;
+  box-shadow: 0 0 16px rgba(255, 215, 0, 0.6);
+}
+
+.count-chip.mystery {
+  color: #ffc4e8;
+  border-style: dashed;
+  border-color: #ff85c2;
+  font-size: clamp(32px, 8vw, 48px);
+  animation: pulse 1s infinite;
+}
+
+.count-prompt {
+  color: #ffc4e8;
+  font-size: clamp(15px, 4vw, 20px);
+}
+
+/* ── Math game ───────────────────────────────────────────────────────────── */
+.math-card {
+  background: linear-gradient(135deg, #7c3aed, #c026d3);
+  border: 3px solid #ffd700;
+  border-radius: 24px;
+  padding: 20px 16px;
+  text-align: center;
+  width: min(420px, 94vw);
+  box-shadow: 0 8px 32px rgba(192, 38, 211, 0.5);
+}
+
+.math-equation {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.math-num {
+  color: white;
+  font-size: clamp(40px, 11vw, 64px);
+  font-weight: bold;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.math-op {
+  color: #ffd700;
+  font-size: clamp(30px, 8vw, 48px);
+  font-weight: bold;
+}
+
+.math-answer          { color: #ffc4e8; }
+.math-answer.revealed { color: #ffd700; animation: popIn 0.3s; }
+
+.math-visual {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.math-group {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 160px;
+}
+
+.math-item {
+  font-size: clamp(20px, 5vw, 28px);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.math-item.taken {
+  opacity: 0.25;
+  filter: grayscale(1);
+}
+
+.math-visual-op { font-size: 20px; }
+
+/* ── Treat reward overlay ────────────────────────────────────────────────── */
+.reward-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: radial-gradient(circle at 50% 35%, #9d2a8c 0%, #4c1d95 60%, #2d0a4e 100%);
+  overflow: hidden;
+  animation: celebIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.reward-floater {
+  position: absolute;
+  bottom: -60px;
+  animation: floatUp linear infinite;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(0deg);        opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translateY(-110vh) rotate(40deg);  opacity: 0; }
+}
+
+.reward-banner {
+  color: #ffd700;
+  font-size: clamp(22px, 6vw, 34px);
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 0 0 24px rgba(255, 215, 0, 0.9);
+  animation: pulse 1s infinite;
+}
+
+.reward-parade {
+  display: flex;
+  gap: 18px;
+}
+
+.reward-emoji {
+  font-size: clamp(70px, 20vw, 120px);
+  line-height: 1;
+  animation: rewardDance 0.6s infinite alternate ease-in-out;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+}
+
+@keyframes rewardDance {
+  from { transform: translateY(0)     rotate(-12deg) scale(1); }
+  to   { transform: translateY(-24px) rotate(12deg)  scale(1.15); }
+}
+
+.reward-title {
+  color: white;
+  font-size: clamp(26px, 7vw, 40px);
+  font-weight: bold;
+  text-shadow: 0 0 20px rgba(255, 133, 194, 0.9);
+}
+
+.reward-subtitle {
+  color: #ffc4e8;
+  font-size: clamp(15px, 4vw, 20px);
+  text-align: center;
+  padding: 0 24px;
+}
+
+.reward-btn {
+  margin-top: 10px;
+  font-size: 44px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 3px solid #ff85c2;
+  border-radius: 50%;
+  width: 92px;
+  height: 92px;
+  cursor: pointer;
+  box-shadow: 0 0 28px rgba(255, 133, 194, 0.7);
+  animation: pulse 1.2s infinite;
+  transition: transform 0.1s;
+}
+
+.reward-btn:active { transform: scale(0.9); }
+
+/* ── End screen buttons ──────────────────────────────────────────────────── */
+.end-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-end-home {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 133, 194, 0.6);
+  border-radius: 20px;
+  font-size: 28px;
+  padding: 12px 18px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: transform 0.1s;
+}
+
+.btn-end-home:active { transform: scale(0.9); }
+
+/* ── iPad / larger screens ───────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  .game-container { max-width: 720px; margin: 0 auto; }
+
+  .menu-grid { width: min(560px, 90vw); gap: 24px; }
+  .menu-card { min-height: 180px; }
+  .menu-card-icon { font-size: 72px; }
+  .menu-card-label { font-size: 24px; }
+
+  .flip-card-wrapper { width: 440px; height: 320px; }
+
+  .choice-row { width: min(560px, 90vw); }
+  .choice-btn { min-height: 110px; }
+
+  .count-card, .math-card { width: min(520px, 90vw); }
+  .math-group { max-width: 240px; }
+
+  .btn { font-size: 20px; min-height: 76px; }
+}
