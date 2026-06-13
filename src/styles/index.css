@@ -257,6 +257,43 @@ body {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+.sentence-words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.sentence-hint {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 2px dashed rgba(255, 215, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  animation: popIn 0.3s;
+}
+
+.sentence-hint-pics {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.sentence-hint-emoji {
+  font-size: clamp(56px, 16vw, 92px);
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.sentence-hint-label {
+  color: #fcd34d;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
 /* ── Guide character ─────────────────────────────────────────────────────── */
 .guide {
   font-size: 40px;

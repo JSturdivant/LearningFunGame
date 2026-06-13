@@ -12,8 +12,8 @@ Pick a game from the welcome screen:
 
 - **🦄 Words** — reading flashcards: read a single word, tap the card to flip
   it for a picture + sound hint
-- **👸 Sentences** — read short sentences word by word, then read the whole
-  sentence aloud
+- **👸 Sentences** — read a whole short sentence at once, with a picture-clue
+  hint button that shows what the sentence means
 - **🌈 Counting** — start at a random number between 1 and 99 and count up by
   tapping the number that comes next
 - **😺 Math** — basic addition and subtraction (all numbers below 30) with
