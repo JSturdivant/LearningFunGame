@@ -25,8 +25,8 @@ export const WORDS = [
   { word: 'milk', emoji: '🥛', sound: 'm-ilk' },
   { word: 'owl',  emoji: '🦉', sound: 'ow-l' },
   { word: 'pan',  emoji: '🍳', sound: 'p-an' },
-  { word: 'rug',  emoji: '🟪', sound: 'r-ug' },
+  { word: 'sock', emoji: '🧦', sound: 's-ock' },
   { word: 'bed',  emoji: '🛏️', sound: 'b-ed' },
   { word: 'car',  emoji: '🚗', sound: 'k-ar' },
-  { word: 'pink', emoji: '🌸', sound: 'p-ink' },
+  { word: 'key',  emoji: '🔑', sound: 'k-ee' },
 ];
