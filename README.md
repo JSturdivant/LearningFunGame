@@ -18,6 +18,12 @@ Pick a game from the welcome screen:
   tapping the number that comes next
 - **😺 Math** — basic addition and subtraction (all numbers below 30) with
   emoji counters to help count
+- **🧩 Crossword** — kid-sized crossword puzzles (about 5 Across and 5 Down
+  clues each) with picture clues and simple kindergarten / first-grade words.
+  Tap a square to type with the device's keyboard, tap it again to switch
+  between Across and Down, and use 💡 for a letter hint. Every solved answer
+  bursts into stars, and every finished puzzle ends with a rainbow, unicorn, or
+  princess celebration. Puzzles live in `src/data/crosswords.js`.
 
 All games award gold stars, with mini celebrations along the way and a big
 animated "Treat Time" reward roughly every few minutes of play.
