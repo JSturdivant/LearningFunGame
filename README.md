@@ -28,6 +28,13 @@ Pick a game from the welcome screen:
 All games award gold stars, with mini celebrations along the way and a big
 animated "Treat Time" reward roughly every few minutes of play.
 
+## Offline / home screen
+
+The app is a PWA. Open it once in Safari while online, then tap
+**Share → Add to Home Screen**. After that it works with no internet (a
+service worker keeps every file on the device). New versions download
+automatically the next time it's opened online.
+
 ## Development
 
 ```bash
