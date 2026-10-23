@@ -899,6 +899,42 @@ body {
   padding: 2px 10px;
 }
 
+.cw-hint {
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 14px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.cw-hint:active { transform: scale(0.9); }
+
+.cw-tap-hint {
+  color: #ffc4e8;
+  font-size: clamp(15px, 4vw, 19px);
+  font-weight: bold;
+  animation: bounce 2s infinite;
+}
+
+/* Hidden box that brings up the device keyboard. It sits on the selected
+   square so iOS scrolls that square into view; 16px text stops iOS zooming. */
+.cw-input {
+  position: absolute;
+  width: 1px;
+  padding: 0;
+  font-size: 16px;
+  color: transparent;
+  caret-color: transparent;
+  background: transparent;
+  border: 0;
+  outline: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .cw-cluebar {
   display: flex;
   align-items: center;
@@ -974,8 +1010,8 @@ body {
   position: relative;
   flex: none;
   container-type: inline-size;
-  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100vh - 430px) * var(--cols) / var(--rows))));
-  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100dvh - 430px) * var(--cols) / var(--rows))));
+  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100vh - 270px) * var(--cols) / var(--rows))));
+  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100dvh - 270px) * var(--cols) / var(--rows))));
 }
 
 .cw-grid {
@@ -1140,42 +1176,6 @@ body {
 .cw-list-emoji { font-size: 20px; }
 .cw-list-clue  { flex: 1; }
 
-.cw-keyboard {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: min(560px, 100%);
-  margin: 0 auto;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-.cw-key-row {
-  display: flex;
-  gap: 6px;
-}
-
-.cw-key {
-  flex: 1;
-  height: 46px;
-  padding: 0;
-  color: white;
-  font-family: 'Arial Rounded MT Bold', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 22px;
-  font-weight: bold;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
-  background: linear-gradient(135deg, #93c5fd, #6366f1);
-  border: 2px solid rgba(255, 255, 255, 0.45);
-  border-radius: 12px;
-  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.25);
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.cw-key.vowel  { background: linear-gradient(135deg, #ff85c2, #db2777); }
-.cw-key-hint   { background: linear-gradient(135deg, #fde68a, #f59e0b); }
-.cw-key-back   { background: linear-gradient(135deg, #c084fc, #7e22ce); }
-.cw-key:active { transform: translateY(2px) scale(0.95); box-shadow: none; }
-
 /* ── Puzzle-solved celebration ───────────────────────────────────────────── */
 .pc-overlay {
   gap: 10px;
@@ -1326,7 +1326,6 @@ body {
 
   .menu-card-rainbow { min-height: 120px; }
 
-  .cw-key { height: 58px; font-size: 26px; }
   .cw-clue-text { font-size: 24px; }
   .cw-list-item { font-size: 15px; }
 }

@@ -6,10 +6,11 @@ import Header from '../components/Header';
 import EndScreen from '../components/EndScreen';
 import PuzzleCelebration, { PUZZLE_SHOWS } from '../components/PuzzleCelebration';
 
-// ABC order is easier than QWERTY for little ones; vowels are pink like the
-// letter colors in the Words game.
-const KEY_ROWS = ['ABCDEFG', 'HIJKLMN', 'OPQRSTU', 'VWXYZ'];
-const VOWELS = 'AEIOU';
+// Typing goes through a hidden input so the device's own keyboard pops up.
+// It always holds this invisible character, so a shorter value means the
+// erase key was pressed (iOS doesn't reliably send Backspace on an empty box).
+const SENTINEL = '\u200B';
+const ARROWS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
 const BURST_MS = 1600;
 const WRONG_MS = 900;
 
@@ -34,6 +35,9 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
   const [sessionStars, setSessionStars] = useState(0);
   const timersRef = useRef([]);
   const gridRef = useRef(null);
+  const inputRef = useRef(null);
+  const [typing, setTyping] = useState(false);
+  const [viewHeight, setViewHeight] = useState(null);
   const burstSeqRef = useRef(0);
 
   const later = useCallback((fn, ms) => {
@@ -213,13 +217,62 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
     selectEntry(list[(i + delta + list.length) % list.length]);
   }, [puzzle, active, selectEntry]);
 
-  // Physical keyboards (iPad keyboard cases, computers) work too.
+  const focusInput = useCallback(() => inputRef.current?.focus(), []);
+
+  const handleInput = useCallback((ev) => {
+    const input = ev.target;
+    const value = input.value;
+    input.value = SENTINEL;
+    input.setSelectionRange(1, 1);
+    if (!value.includes(SENTINEL)) {
+      backspace();
+      return;
+    }
+    const typed = value.replace(SENTINEL, '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (typed) typeLetter(typed[typed.length - 1]);
+  }, [backspace, typeLetter]);
+
+  const handleInputKey = useCallback((ev) => {
+    if (ARROWS[ev.key]) {
+      ev.preventDefault();
+      moveArrow(...ARROWS[ev.key]);
+    } else if (ev.key === 'Enter') {
+      ev.preventDefault();
+      stepClue(1);
+    }
+  }, [moveArrow, stepClue]);
+
+  // Close the keyboard while the puzzle party plays.
+  useEffect(() => {
+    if (phase !== 'play') inputRef.current?.blur();
+  }, [phase]);
+
+  // When the on-screen keyboard opens, shrink the game to the part of the
+  // screen that's still showing and keep the selected square in view.
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return undefined;
+    const onResize = () => {
+      setViewHeight(vv.height);
+      window.scrollTo(0, 0);
+    };
+    onResize();
+    vv.addEventListener('resize', onResize);
+    return () => vv.removeEventListener('resize', onResize);
+  }, []);
+
+  useEffect(() => {
+    gridRef.current?.querySelector('.cw-cell.selected')?.scrollIntoView({ block: 'nearest' });
+  }, [curKey, viewHeight]);
+
+  // A physical keyboard (iPad keyboard case, computer) works even before a
+  // square is tapped; once the hidden input has focus it handles the keys.
   const handlersRef = useRef();
   handlersRef.current = { typeLetter, backspace, moveArrow };
   useEffect(() => {
-    const ARROWS = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
     const onKey = (ev) => {
       if (ev.metaKey || ev.ctrlKey || ev.altKey) return;
+      if (ev.target === inputRef.current) return;
       const h = handlersRef.current;
       if (/^[a-z]$/i.test(ev.key)) h.typeLetter(ev.key.toUpperCase());
       else if (ev.key === 'Backspace') h.backspace();
@@ -289,7 +342,10 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
         />
       )}
 
-      <div className="game-container cw-container">
+      <div
+        className="game-container cw-container"
+        style={viewHeight ? { height: viewHeight } : undefined}
+      >
         <Header
           stars={totalStars}
           progressText={`Puzzle ${puzzleIdx + 1} of ${order.length}`}
@@ -300,10 +356,17 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
         <div className="cw-puzzle-title">
           {puzzle.emoji} {puzzle.title}
           <span className="cw-puzzle-count">⭐ {solved.length} / {puzzle.entries.length}</span>
+          <button
+            className="cw-hint"
+            onClick={() => { giveHint(); focusInput(); }}
+            aria-label="Hint"
+          >
+            💡
+          </button>
         </div>
 
         <div className={`cw-cluebar ${solved.includes(active.id) ? 'solved' : ''}`}>
-          <button className="cw-nav" onClick={() => stepClue(-1)} aria-label="Previous clue">◀</button>
+          <button className="cw-nav" onClick={() => { stepClue(-1); focusInput(); }} aria-label="Previous clue">◀</button>
           <div className="cw-clue-current">
             <span className="cw-clue-emoji">{active.emoji}</span>
             <div>
@@ -314,10 +377,13 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
               <div className="cw-clue-text">{active.clue}</div>
             </div>
           </div>
-          <button className="cw-nav" onClick={() => stepClue(1)} aria-label="Next clue">▶</button>
+          <button className="cw-nav" onClick={() => { stepClue(1); focusInput(); }} aria-label="Next clue">▶</button>
         </div>
 
         <div className="cw-scroll">
+          {!typing && phase === 'play' && (
+            <div className="cw-tap-hint">👆 Tap a square to type</div>
+          )}
           <div
             ref={gridRef}
             className="cw-grid-wrap"
@@ -338,7 +404,7 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
                     key={k}
                     className={classes.join(' ')}
                     style={k in popDelay ? { animationDelay: `${popDelay[k]}s` } : undefined}
-                    onClick={() => tapCell(r, c)}
+                    onClick={() => { tapCell(r, c); focusInput(); }}
                     aria-label={`Square ${r + 1}, ${c + 1}`}
                   >
                     {cell.number && <span className="cw-num">{cell.number}</span>}
@@ -347,6 +413,27 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
                 );
               }))}
             </div>
+
+            <input
+              ref={inputRef}
+              className="cw-input"
+              style={{
+                left: `${(sel.c / puzzle.cols) * 100}%`,
+                top: `${(sel.r / puzzle.rows) * 100}%`,
+                height: `${100 / puzzle.rows}%`,
+              }}
+              defaultValue={SENTINEL}
+              onInput={handleInput}
+              onKeyDown={handleInputKey}
+              onFocus={() => setTyping(true)}
+              onBlur={() => setTyping(false)}
+              autoCapitalize="characters"
+              autoCorrect="off"
+              autoComplete="off"
+              spellCheck={false}
+              enterKeyHint="next"
+              aria-label="Type a letter"
+            />
 
             <div className="cw-bursts">
               {bursts.map((b) => b.entries.map((e) => e.cells.map(([r, c], i) => (
@@ -380,6 +467,7 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
                     className={`cw-list-item ${e.id === active.id ? 'active' : ''} ${solved.includes(e.id) ? 'solved' : ''}`}
                     onClick={() => {
                       selectEntry(e);
+                      focusInput();
                       gridRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                     }}
                   >
@@ -392,28 +480,6 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
               </div>
             ))}
           </div>
-        </div>
-
-        <div className="cw-keyboard">
-          {KEY_ROWS.map((row, i) => (
-            <div key={row} className="cw-key-row">
-              {[...row].map((ch) => (
-                <button
-                  key={ch}
-                  className={`cw-key ${VOWELS.includes(ch) ? 'vowel' : ''}`}
-                  onClick={() => typeLetter(ch)}
-                >
-                  {ch}
-                </button>
-              ))}
-              {i === KEY_ROWS.length - 1 && (
-                <>
-                  <button className="cw-key cw-key-hint" onClick={giveHint} aria-label="Hint">💡</button>
-                  <button className="cw-key cw-key-back" onClick={backspace} aria-label="Erase">⌫</button>
-                </>
-              )}
-            </div>
-          ))}
         </div>
       </div>
     </div>
