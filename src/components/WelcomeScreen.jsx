@@ -3,6 +3,7 @@ const MODES = [
   { id: 'sentences',  icon: '📖', friend: '👸', label: 'Sentences', className: 'menu-card-purple' },
   { id: 'counting',   icon: '🔢', friend: '🌈', label: 'Counting',  className: 'menu-card-magenta' },
   { id: 'math',       icon: '➕', friend: '😺', label: 'Math',      className: 'menu-card-violet' },
+  { id: 'crossword',  icon: '🧩', friend: '🦋', label: 'Crossword', className: 'menu-card-rainbow' },
 ];
 
 export default function WelcomeScreen({ totalStars, onPick }) {
