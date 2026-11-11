@@ -490,10 +490,13 @@ body {
 
 .welcome-header { text-align: center; }
 
-.welcome-crown {
-  font-size: 56px;
+.welcome-logo {
+  display: block;
+  width: clamp(72px, 18vw, 110px);
+  height: auto;
+  margin: 0 auto;
   animation: bounce 2s infinite;
-  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.5));
+  filter: drop-shadow(0 4px 14px rgba(255, 133, 194, 0.55));
 }
 
 .welcome-title {

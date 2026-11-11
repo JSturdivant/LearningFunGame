@@ -10,7 +10,7 @@ export default function WelcomeScreen({ totalStars, onPick }) {
   return (
     <div className="welcome">
       <div className="welcome-header">
-        <div className="welcome-crown">👑</div>
+        <img className="welcome-logo" src="/logo.svg" alt="" />
         <h1 className="welcome-title">Princess Learning Fun</h1>
         <div className="welcome-sub">✨ Pick a game! ✨</div>
         {totalStars > 0 && (

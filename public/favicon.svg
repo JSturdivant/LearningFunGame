@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><defs>
+  <radialGradient id="bg" cx="50%" cy="38%" r="70%">
+    <stop offset="0" stop-color="#c03fd6"/><stop offset="0.55" stop-color="#7a1fa0"/><stop offset="1" stop-color="#2d0a4e"/>
+  </radialGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffe680"/><stop offset="0.5" stop-color="#ffc928"/><stop offset="1" stop-color="#f29a00"/>
+  </linearGradient>
+  <linearGradient id="band" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffd84a"/><stop offset="1" stop-color="#e88a00"/>
+  </linearGradient>
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+    <stop offset="0" stop-color="#ffd700" stop-opacity="0.55"/><stop offset="1" stop-color="#ffd700" stop-opacity="0"/>
+  </radialGradient>
+</defs><rect width="512" height="512" rx="112" fill="url(#bg)"/><circle cx="256" cy="280" r="190" fill="url(#glow)"/><g transform="translate(256 286) scale(1.32) translate(-256 -270)"><path d="M140 340 L118 200 L196 266 L256 168 L316 266 L394 200 L372 340 Z" fill="url(#gold)" stroke="#e08a00" stroke-width="8" stroke-linejoin="round"/><rect x="128" y="330" width="256" height="54" rx="20" fill="url(#band)" stroke="#e08a00" stroke-width="8"/><circle cx="118" cy="198" r="20" fill="#ff7fc4" stroke="#e0458f" stroke-width="6"/><circle cx="394" cy="198" r="20" fill="#ff7fc4" stroke="#e0458f" stroke-width="6"/><polygon points="256.0,110.0 266.6,135.4 294.0,137.6 273.1,155.6 279.5,182.4 256.0,168.0 232.5,182.4 238.9,155.6 218.0,137.6 245.4,135.4" fill="#ffe14d" stroke="#e08a00" stroke-width="6" stroke-linejoin="round"/><path d="M256 324 C226 302 214 286 214 270 C214 256 225 246 238 246 C246 246 252 250 256 257 C260 250 266 246 274 246 C287 246 298 256 298 270 C298 286 286 302 256 324Z" fill="#ff4fa3" stroke="#c0186f" stroke-width="6" stroke-linejoin="round"/><circle cx="176" cy="357" r="12" fill="#3fd6c8" stroke="#ffffffaa" stroke-width="3"/><circle cx="256" cy="357" r="12" fill="#a46bff" stroke="#ffffffaa" stroke-width="3"/><circle cx="336" cy="357" r="12" fill="#3fd6c8" stroke="#ffffffaa" stroke-width="3"/></g></svg>
