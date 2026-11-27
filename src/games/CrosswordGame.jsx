@@ -38,6 +38,9 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
   const inputRef = useRef(null);
   const [typing, setTyping] = useState(false);
   const [viewHeight, setViewHeight] = useState(null);
+  const [fitH, setFitH] = useState(null);
+  const scrollRef = useRef(null);
+  const hintRef = useRef(null);
   const burstSeqRef = useRef(0);
 
   const later = useCallback((fn, ms) => {
@@ -261,9 +264,25 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
     return () => vv.removeEventListener('resize', onResize);
   }, []);
 
+  // Size the squares so the whole grid fits in the space left under the clue,
+  // which shrinks a lot once the on-screen keyboard is up.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const hint = hintRef.current;
+      const hintH = hint ? hint.offsetHeight + 14 : 0;
+      setFitH(Math.max(0, el.clientHeight - 12 - hintH));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [typing, phase]);
+
   useEffect(() => {
     gridRef.current?.querySelector('.cw-cell.selected')?.scrollIntoView({ block: 'nearest' });
-  }, [curKey, viewHeight]);
+  }, [curKey, viewHeight, fitH]);
 
   // A physical keyboard (iPad keyboard case, computer) works even before a
   // square is tapped; once the hidden input has focus it handles the keys.
@@ -343,7 +362,7 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
       )}
 
       <div
-        className="game-container cw-container"
+        className={`game-container cw-container ${typing ? 'cw-compact' : ''}`}
         style={viewHeight ? { height: viewHeight } : undefined}
       >
         <Header
@@ -380,14 +399,18 @@ export default function CrosswordGame({ onHome, onStar, totalStars }) {
           <button className="cw-nav" onClick={() => { stepClue(1); focusInput(); }} aria-label="Next clue">▶</button>
         </div>
 
-        <div className="cw-scroll">
+        <div className="cw-scroll" ref={scrollRef}>
           {!typing && phase === 'play' && (
-            <div className="cw-tap-hint">👆 Tap a square to type</div>
+            <div className="cw-tap-hint" ref={hintRef}>👆 Tap a square to type</div>
           )}
           <div
             ref={gridRef}
             className="cw-grid-wrap"
-            style={{ '--cols': puzzle.cols, '--rows': puzzle.rows }}
+            style={{
+              '--cols': puzzle.cols,
+              '--rows': puzzle.rows,
+              ...(fitH ? { '--fit-h': `${fitH}px` } : {}),
+            }}
           >
             <div className="cw-grid">
               {puzzle.cells.map((row, r) => row.map((cell, c) => {
