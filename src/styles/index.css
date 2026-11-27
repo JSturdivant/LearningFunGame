@@ -1013,8 +1013,18 @@ body {
   position: relative;
   flex: none;
   container-type: inline-size;
-  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100vh - 270px) * var(--cols) / var(--rows))));
-  width: max(200px, min(94vw, calc(var(--cols) * 54px), calc((100dvh - 270px) * var(--cols) / var(--rows))));
+  /* Grid frame (border + padding) is 8px per side and squares are 3px apart.
+     Width is the largest that lets every row fit in --fit-h (the space left
+     under the clue, measured in JS), capped at 54px squares, never below 20px. */
+  --fit: var(--fit-h, calc(100vh - 270px));
+  width: max(
+    calc(var(--cols) * 23px + 13px),
+    min(
+      94vw,
+      calc(var(--cols) * 57px + 13px),
+      calc((var(--fit) - 13px - var(--rows) * 3px) / var(--rows) * var(--cols) + var(--cols) * 3px + 13px)
+    )
+  );
 }
 
 .cw-grid {
@@ -1178,6 +1188,20 @@ body {
 .cw-list-num   { color: #ffd700; min-width: 18px; }
 .cw-list-emoji { font-size: 20px; }
 .cw-list-clue  { flex: 1; }
+
+/* While typing (keyboard up) squeeze the top bars so the grid gets the room. */
+.cw-compact.cw-container            { gap: 4px; padding-top: 4px; padding-bottom: 4px; }
+.cw-compact .header                 { padding: 2px 10px; }
+.cw-compact .home-btn               { font-size: 16px; padding: 2px 8px; }
+.cw-compact .cw-puzzle-title        { font-size: 15px; }
+.cw-compact .cw-hint                { font-size: 16px; padding: 2px 8px; }
+.cw-compact .cw-cluebar             { padding: 4px 6px; border-width: 2px; border-radius: 14px; }
+.cw-compact .cw-nav                 { width: 34px; height: 34px; font-size: 14px; border-radius: 10px; }
+.cw-compact .cw-clue-current        { min-height: 36px; gap: 8px; }
+.cw-compact .cw-clue-emoji          { font-size: 28px; }
+.cw-compact .cw-clue-label          { font-size: 11px; }
+.cw-compact .cw-clue-text           { font-size: 15px; }
+.cw-compact .cw-scroll              { gap: 10px; }
 
 /* ── Puzzle-solved celebration ───────────────────────────────────────────── */
 .pc-overlay {
